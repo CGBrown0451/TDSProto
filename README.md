@@ -4,12 +4,12 @@ Started 29/10/2018: This is a small prototype for a Twin-Stick Top Down Shooter,
 - [ ] Basic Movement
 - [ ] Bullets
 - [ ] Shooting
-- [ ] Swarming Enemy /(Zombie?)
+- [ ] Swarming Enemy (Zombie?)
 - [ ] Enemy Damage
 - [ ] Player Damage
 - [ ] Game UI
 - [ ] Menu UI
-- [ ] /(Optional) Tank Enemy
-- [ ] /(Optional) Big Snake Enemy
-- [ ] /(Optional) Player Mirror Enemy
-- [ ] /(Optional) Menus
+- [ ] (Optional) Tank Enemy
+- [ ] (Optional) Big Snake Enemy
+- [ ] (Optional) Player Mirror Enemy
+- [ ] (Optional) Menus
