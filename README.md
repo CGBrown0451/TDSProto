@@ -6,6 +6,7 @@ The target for this game is a web page with raw javascript on a desktop. This is
 - [ ] Basic Movement
 - [ ] Bullets
 - [ ] Shooting
+- [ ] (Optional) Powerups
 - [ ] Swarming Enemy (Zombie?)
 - [ ] Enemy Damage
 - [ ] Player Damage
