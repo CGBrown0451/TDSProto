@@ -1,7 +1,7 @@
 // JavaScript source code
 
 
-//DAY 1: Imported useful functions, made some new ones and set up the canvas.
+//DAY 1: Imported useful functions, made some new ones and set up drawing, movement and shooting for the player. Need to figure out why everything is black, though.
 console.log("Group 1 Reporting");
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
@@ -25,12 +25,13 @@ var controls = {
 
 };
 
-objects.push(newPlayer());
+var no = objects.push(newPlayer());
+objects[no - 1].id = no - 1;
 
 loadHandler();
 
 
-//For futureproofing. When I implement sprite loading, this will come in handy.
+//For futureproofing. If I implement sprite loading, this will come in handy.
 function loadHandler() {
 	window.addEventListener("keydown", keyDownHandler, false);
 	window.addEventListener("keyup", keyUpHandler, false);
@@ -48,8 +49,10 @@ function Update() {
 	for (var i in objects) {
 		objects[i].update();
 	}
+	console.log(objects);
 	Render();
-
+	lateUpdate();
+	
 
 }
 
@@ -75,6 +78,12 @@ function Render() {
 
 }
 
+
+function lateUpdate() {
+
+	keysDownThisFrame = [];
+	requestAnimationFrame(Update);
+}
 
 //Handles input
 function inputHandler() {
@@ -111,12 +120,19 @@ function newPlayer() {
 		maxhp: 100,
 		energy: 100,
 		maxenergy: 100,
-		colour: "#0000FF",
+		colour: "blue",
 		radius: 8,
-		circleCol: newcircleCol(this.center, this.radius, this),
+		shootint: 30,
+		shootcounter: 0,
+		id: null,
+		circleCol: newcircleCol(this.radius, this),
 		move: function () {
 
-			this.moveVector.normalised();
+			if (mlr == 0 && mud == 0) {
+				return;
+			}
+
+			this.moveVector = this.moveVector.normalised();
 
 			this.Vec2.x += this.moveVector.x * this.movespeed;
 			this.Vec2.y += this.moveVector.y * this.movespeed;
@@ -124,7 +140,17 @@ function newPlayer() {
 		},
 		shoot: function () {
 
+			if (slr == 0 && sud == 0 || this.shootVector.magnitude() == 0) {
+				return;
+			}
 
+			this.shootVector = this.shootVector.normalised();
+
+			var no = objects.push(newBullet(this.Vec2.x + this.shootVector.x * this.radius + 2, this.Vec2.y + this.shootVector.y * this.radius + 2, 2, 1, 2, this.shootVector));
+
+			objects[no - 1].id = no - 1;
+
+			this.shootcounter = 0;
 
 		},
 		update: function () {
@@ -136,12 +162,80 @@ function newPlayer() {
 			this.shootVector.y = sud;
 
 			this.move();
-			this.shoot();
+
+			this.shootcounter++;
+
+			if (this.shootcounter >= this.shootint) {
+
+				this.shoot();
+
+			}
+			
+
+		},
+		destroy: function () {
+			if (this.id != objects.length - 1) {
+				for (i = this.id + 1; i < objects.length; i++) {
+					objects[i].id--;
+				}
+			}
+			objects.splice(this.id, 1);
 
 		}
 	};
 	return player;
 }
+//Initialises Bullets.
+function newBullet(x,y,radius,damage,speed,moveVector) {
+	var bul = {
+		Vec2: newVec2(x, y, this),
+		center: newVec2(0,0,this),
+		radius: radius,
+		colour: "red",
+		damage: damage,
+		movespeed: speed,
+		moveVector: moveVector,
+		circleCol: newcircleCol(this.radius, this),
+		id: null,
+		move: function() {
+
+			this.moveVector = this.moveVector.normalised();
+
+			this.Vec2.x += this.moveVector.x * this.movespeed;
+			this.Vec2.y += this.moveVector.y * this.movespeed;
+
+		},
+		update: function () {
+			this.moveVector.parent = this;
+			this.move();
+
+			if (this.Vec2.x < 0 || this.Vec2.x > canvas.width) {
+				this.destroy();
+			} else if (this.Vec2.y < 0 || this.Vec2.y > canvas.height) {
+				this.destroy();
+			}
+
+			if (this.moveVector.magnitude() == 0) {
+				this.destroy();
+			}
+
+		},
+		destroy: function () {
+			if (this.id != objects.length - 1) {
+				for (i = this.id + 1; i < objects.length; i++) {
+					objects[i].id--;
+				}
+			}
+			objects.splice(this.id, 1);
+			
+
+		}
+
+	}
+	return bul;
+}
+
+//Zombie Initialisation
 
 
 //Creates a Vector2 subObject
@@ -232,8 +326,8 @@ function keyDownHandler(event) {
 	}
 
 
-	console.log(keysDown);
-	console.log(keysDownThisFrame);
+	//console.log(keysDown);
+	//console.log(keysDownThisFrame);
 
 }
 
