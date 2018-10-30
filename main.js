@@ -1,17 +1,101 @@
 // JavaScript source code
 
 
-//DAY 1: Imported useful functions and set up the canvas. Started on movement
+//DAY 1: Imported useful functions, made some new ones and set up the canvas.
 console.log("Group 1 Reporting");
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
 
-
+var keysDown = [];
+var keysDownThisFrame = [];
 var objects = [];
+
+var sud, slr, mud, mlr;
+
+var controls = {
+
+	mup: "KeyW",
+	mdown: "KeyS",
+	mleft: "KeyA",
+	mright: "KeyD",
+	sup: "ArrowUp",
+	sdown: "ArrowDown",
+	sleft: "ArrowLeft",
+	sright: "ArrowRight"
+
+};
 
 objects.push(newPlayer());
 
+loadHandler();
 
+
+//For futureproofing. When I implement sprite loading, this will come in handy.
+function loadHandler() {
+	window.addEventListener("keydown", keyDownHandler, false);
+	window.addEventListener("keyup", keyUpHandler, false);
+
+	Update();
+
+}
+
+
+
+//Main Game Loop
+function Update() {
+
+	inputHandler();
+	for (var i in objects) {
+		objects[i].update();
+	}
+	Render();
+
+
+}
+
+//Renders sprites and primitive shapes
+function Render() {
+
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	for (var i in objects) {
+
+		var obj = objects[i];
+
+		context.fillstyle = obj.colour;
+
+		context.beginPath();
+		context.arc(obj.Vec2.x + obj.center.x, obj.Vec2.y + obj.center.y, obj.radius, 0, Math.PI * 2);
+		context.closePath();
+		context.fill();
+
+
+	}
+
+
+}
+
+
+//Handles input
+function inputHandler() {
+
+	sud = slr = mud = mlr = 0;  
+
+	sud = Number(getKey(controls.sdown)) - Number(getKey(controls.sup));
+	slr = Number(getKey(controls.sright)) - Number(getKey(controls.sleft));
+
+	mud = Number(getKey(controls.mdown)) - Number(getKey(controls.mup));
+	mlr = Number(getKey(controls.mright)) - Number(getKey(controls.mleft));
+
+	/* Other example
+	 * 
+	 * if (getKey(controls.sdown) && !getKey(conrols.sup)) sud = 1;
+	 * if (!getKey(controls.sdown) && getKey(conrols.sup)) sud = -1;
+	 * 
+	 */
+
+
+}
 
 
 //Initialises the player. TODO: too much
@@ -19,17 +103,20 @@ function newPlayer() {
 	var player = {
 
 		Vec2: newVec2(350, 250,this),
-		center: newVec2(8, 8,this),
-		circleCol: newcircleCol(center, radius, this),
+		center: newVec2(0, 0,this),
 		movespeed: 1,
 		moveVector: newVec2(0, 0, this),
+		shootVector: newVec2(0, 0, this),
 		hp: 100,
 		maxhp: 100,
 		energy: 100,
 		maxenergy: 100,
+		colour: "#0000FF",
+		radius: 8,
+		circleCol: newcircleCol(this.center, this.radius, this),
 		move: function () {
 
-			this.moveVector.normalise();
+			this.moveVector.normalised();
 
 			this.Vec2.x += this.moveVector.x * this.movespeed;
 			this.Vec2.y += this.moveVector.y * this.movespeed;
@@ -38,6 +125,18 @@ function newPlayer() {
 		shoot: function () {
 
 
+
+		},
+		update: function () {
+
+			this.moveVector.x = mlr;
+			this.moveVector.y = mud;
+
+			this.shootVector.x = slr;
+			this.shootVector.y = sud;
+
+			this.move();
+			this.shoot();
 
 		}
 	};
@@ -118,5 +217,66 @@ function diag(x, y) {
 
 
 	return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+}
+
+
+
+//Checks for keys being down on the frame they are pressed.
+function keyDownHandler(event) {
+
+	if (!event.repeat) {
+		keysDown.push(event.code);
+		keysDownThisFrame.push(event.code);
+
+	}
+
+
+	console.log(keysDown);
+	console.log(keysDownThisFrame);
+
+}
+
+//Checks for keys being up on the frame they are released
+function keyUpHandler(event) {
+
+	for (var i = 0; i < keysDown.length; i++) {
+
+		if (event.code === keysDown[i]) {
+			keysDown.splice(i, 1);
+			i--;
+		}
+
+	}
+
+}
+
+
+//Universal function for getting a key that is currently down.
+function getKey(key) {
+
+	for (var i = 0; i < keysDown.length; i++) {
+
+		if (key === keysDown[i]) {
+			return true;
+		}
+
+	}
+	return false;
+
+}
+
+
+//Like above, but for keys on the current frame instead.
+function getKeyDown(key) {
+
+	for (i = 0; i < keysDownThisFrame.length; i++) {
+
+		if (key === keysDownThisFrame[i]) {
+			return true;
+		}
+
+	}
+	return false;
 
 }
