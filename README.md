@@ -3,9 +3,9 @@ Started 29/10/2018: This is a small prototype for a Twin-Stick Top Down Shooter,
 
 The target for this game is a web page with raw javascript on a desktop. This is a limitation of my game, so I need to be more creative.
 ## Features to make
-- [ ] Basic Movement
-- [ ] Bullets
-- [ ] Shooting
+- [X] Basic Movement
+- [X] Bullets
+- [X] Shooting
 - [ ] (Optional) Powerups
 - [ ] Swarming Enemy (Zombie?)
 - [ ] Enemy Damage
