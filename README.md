@@ -7,9 +7,9 @@ The target for this game is a web page with raw javascript on a desktop. This is
 - [X] Bullets
 - [X] Shooting
 - [ ] (Optional) Powerups
-- [ ] Swarming Enemy (Zombie?)
-- [ ] Enemy Damage
-- [ ] Player Damage
+- [X] Swarming Enemy (Zombie?)
+- [X] Enemy Damage
+- [X] Player Damage
 - [ ] Game UI
 - [ ] (Optional) Tank Enemy
 - [ ] (Optional) Big Snake Enemy
