@@ -36,6 +36,8 @@ function loadHandler() {
 	window.addEventListener("keydown", keyDownHandler, false);
 	window.addEventListener("keyup", keyUpHandler, false);
 
+	spawnZombieGroup(100, 100, 30, 8, 1, 5, 5);
+
 	Update();
 
 }
@@ -49,7 +51,7 @@ function Update() {
 	for (var i in objects) {
 		objects[i].update();
 	}
-	console.log(objects);
+	//console.log(objects);
 	Render();
 	lateUpdate();
 	
@@ -110,7 +112,7 @@ function inputHandler() {
 //Initialises the player. TODO: too much
 function newPlayer() {
 	var player = {
-
+		type: "player",
 		Vec2: newVec2(350, 250,this),
 		center: newVec2(0, 0,this),
 		movespeed: 1,
@@ -126,18 +128,6 @@ function newPlayer() {
 		shootcounter: 0,
 		id: null,
 		circleCol: newcircleCol(this.radius, this),
-		move: function () {
-
-			if (mlr == 0 && mud == 0) {
-				return;
-			}
-
-			this.moveVector = this.moveVector.normalised();
-
-			this.Vec2.x += this.moveVector.x * this.movespeed;
-			this.Vec2.y += this.moveVector.y * this.movespeed;
-
-		},
 		shoot: function () {
 
 			if (slr == 0 && sud == 0 || this.shootVector.magnitude() == 0) {
@@ -172,39 +162,25 @@ function newPlayer() {
 			}
 			
 
-		},
-		destroy: function () {
-			if (this.id != objects.length - 1) {
-				for (i = this.id + 1; i < objects.length; i++) {
-					objects[i].id--;
-				}
-			}
-			objects.splice(this.id, 1);
-
 		}
 	};
+	subFuncs(player);
 	return player;
 }
 //Initialises Bullets.
 function newBullet(x,y,radius,damage,speed,moveVector) {
 	var bul = {
+		type: "bullet",
 		Vec2: newVec2(x, y, this),
-		center: newVec2(0,0,this),
+		center: newVec2(0, 0, this),
 		radius: radius,
 		colour: "red",
+		piercing: 1,
 		damage: damage,
 		movespeed: speed,
 		moveVector: moveVector,
 		circleCol: newcircleCol(this.radius, this),
 		id: null,
-		move: function() {
-
-			this.moveVector = this.moveVector.normalised();
-
-			this.Vec2.x += this.moveVector.x * this.movespeed;
-			this.Vec2.y += this.moveVector.y * this.movespeed;
-
-		},
 		update: function () {
 			this.moveVector.parent = this;
 			this.move();
@@ -219,23 +195,77 @@ function newBullet(x,y,radius,damage,speed,moveVector) {
 				this.destroy();
 			}
 
-		},
-		destroy: function () {
-			if (this.id != objects.length - 1) {
-				for (i = this.id + 1; i < objects.length; i++) {
-					objects[i].id--;
-				}
-			}
-			objects.splice(this.id, 1);
-			
-
 		}
 
-	}
+	};
+	subFuncs(bul);
 	return bul;
 }
 
 //Zombie Initialisation
+
+function newZombie(x,y,size,health,damage) {
+
+
+	return new Zombie(x, y, size, health, damage);
+
+	/*var zom = {
+		type: "zombie",
+		Vec2: newVec2(x, y, this),
+		center: newVec2(0, 0, this),
+		radius: size/2,
+		colour: "purple",
+		damage: damage,
+		health: health,
+		movespeed: 1.5,
+		moveVector: newVec2(0, 0, this),
+		circleCol: newcircleCol(this.radius, this),
+		id: null,
+		update: function () {
+
+			for (var i in objects) {
+
+				if (i == this.id) {
+					continue;
+				}
+
+				var hit = this.circleCol.colCheck(i);
+
+				if (hit) {
+
+					switch (objects[i].type) {
+
+						case "bullet":
+							this.health -= objects[i].damage;
+							objects[i].piercing--;
+							break;
+						case "player":
+							objects[i].health -= this.damage;
+							this.destroy();
+							break;
+
+					}
+
+				}
+
+			}
+
+			if (this.health >= 0) {
+
+				this.destroy();
+
+			}
+
+			//BUM RUSH
+
+		}
+
+
+	};
+	subFuncs(zom);
+	return zom;*/
+
+}
 
 
 //Creates a Vector2 subObject
@@ -268,6 +298,7 @@ function newcircleCol(radius,parent) {
 		radius: radius,
 		parent: parent,
 		colCheck: function (objectId) {
+			console.log(this.parent);
 			var x1 = this.parent.Vec2.x;
 			var y1 = this.parent.Vec2.y;
 			var x2 = objects[objectId].Vec2.x;
@@ -286,6 +317,63 @@ function newcircleCol(radius,parent) {
 	return circleCol;
 }
 
+
+function spawnZombieGroup(x, y, spread, size, health, damage, number) {
+
+	var i = 0;
+
+	while (i < number) {
+
+		objects.push(newZombie(x + Randrange(-spread, spread, true), y + Randrange(-spread, spread, true), size, health, damage));
+		i++;
+	}
+
+}
+
+//Initalises general subfunctions for objects
+function subFuncs() {
+
+	this.move = function () {
+
+		this.moveVector = this.moveVector.normalised();
+
+		this.Vec2.x += this.moveVector.x * this.movespeed;
+		this.Vec2.y += this.moveVector.y * this.movespeed;
+
+	};
+
+	this.destroy = function () {
+
+		if (this.id != objects.length - 1) {
+			for (i = this.id + 1; i < objects.length; i++) {
+				objects[i].id--;
+			}
+		}
+		objects.splice(this.id, 1);
+
+	};
+
+}
+
+function Randrange(low, high, int) {
+
+	var rand = Math.random();
+	var range = high - low;
+
+	var gen = (rand * range) - low;
+
+	if (int) {
+
+		return Math.floor(gen);
+
+	} else {
+
+		return gen;
+
+	}
+
+
+}
 
 
 //Measures the distance between two points. USES SQRT
