@@ -39,7 +39,7 @@ function Bullet(x, y, size, damage, speed, moveVector) {
 
 //Creates a Zombie
 function Zombie(x, y, size, health, damage) {
-	this.type = "Zombie";
+	this.type = "zombie";
 	this.Vec2 = new Vec2(x, y, this);
 	this.movespeed = 0.5;
 	this.size = size;
@@ -50,21 +50,21 @@ function Zombie(x, y, size, health, damage) {
 	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "purple", this);
 	this.circleCol = new circleCol(this.size/2, this);
 	this.update = function () {
+		if (!gameover) {
+			var vec = distBetween(this.Vec2.x, this.Vec2.y, objects[0].Vec2.x, objects[0].Vec2.y, true);
 
-		var vec = distBetween(this.Vec2.x, this.Vec2.y, objects[0].Vec2.x, objects[0].Vec2.y, true);
+			vec = new Vec2(vec[0], vec[1], null);
 
-		vec = new Vec2(vec[0], vec[1], null);
+			vec = vec.normalised();
 
-		vec = vec.normalised();
+			vec.x = Math.round(vec.x);
+			vec.y = Math.round(vec.y);
 
-		vec.x = Math.round(vec.x);
-		vec.y = Math.round(vec.y);
+			this.moveVector.x = -vec.x;
+			this.moveVector.y = -vec.y;
 
-		this.moveVector.x = -vec.x;
-		this.moveVector.y = -vec.y;
-
-		this.move();
-
+			this.move();
+		}
 		
 
 		for (var i in objects) {
@@ -97,10 +97,11 @@ function Zombie(x, y, size, health, damage) {
 
 					}
 					break;
-				case "Zombie":
+				case "zombie":
 					if (this.circleCol.colCheck(i)) {
-						this.moveVector.x = -this.moveVector.x;
-						this.moveVector.y = -this.moveVector.y;
+						var movedir = distBetween(this.Vec2.x, this.Vec2.y, objects[i].Vec2.x, objects[i].Vec2.y, true);
+						this.moveVector.x = movedir[0];
+						this.moveVector.y = movedir[1];
 						this.move();
 
 					}
@@ -109,7 +110,8 @@ function Zombie(x, y, size, health, damage) {
 
 		}
 		if (this.health <= 0) {
-
+			score += 10;
+			objects[1].zombies--;
 			this.destroy();
 
 		}
@@ -182,9 +184,62 @@ function Player() {
 
 		}
 
+		if (this.health <= 0) {
+
+			this.destroy();
+			gameover = true; 
+		}
 
 	};
 	subFuncs(this);
+}
+
+function director() {
+
+	this.type = "director";
+	this.gameticks = 0;
+	this.loZombiespawnInterval = 1800;
+	this.hiZombieSpawnInterval = 120;
+	this.zombieSpawnInterval = 120;
+	this.desiredZombies = 100;
+	this.softZombiecap = 150;
+	this.zombies = 0;
+	this.zombieDamage = 5;
+	this.zombieSpeed = 1;
+	this.deathwait = 60;
+	this.deathtime = null;
+	this.zombieSpawnAve = 10;
+	this.zombiespawnDev = 5;
+	this.update = function () {
+
+		if (this.gameticks % this.zombieSpawnInterval == 0) {
+			var number = Randrange(this.zombieSpawnAve - this.zombiespawnDev, this.zombieSpawnAve + this.zombiespawnDev, true);
+			console.log("spawn " + number + " zombies");
+			spawnZombieGroup(Randrange(0, canvas.width, true), Randrange(0, canvas.height, true), 30, 8, 1, 5, number);
+			this.zombies += number; 
+
+		}
+
+		if (objects[0].type != "player") {
+
+			if (this.deathtime == null) {
+				this.deathtime = this.gameticks;
+				gameover = true;
+			}
+
+			if (this.gameticks - this.deathwait == this.deathtime) {
+
+				alert("Game Over. Final Score: " + score);
+
+			}
+
+
+		}
+
+		this.gameticks++;
+	};
+	subFuncs(this);
+
 }
 
 //Spawns a group of zombies in a random range around a point. Best way to spawn Zombies.
@@ -257,7 +312,7 @@ function circleRenderer(radius, center, colour, parent) {
 	this.parent = parent;
 	this.draw = function () {
 
-		context.fillstyle = this.colour;
+		context.fillStyle = this.colour;
 		context.beginPath();
 		context.arc(this.parent.Vec2.x + this.center.x, this.parent.Vec2.y + this.center.y, this.radius, 0, Math.PI * 2);
 		context.fill();

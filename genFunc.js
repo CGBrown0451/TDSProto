@@ -9,7 +9,7 @@ function Randrange(low, high, int) {
 	var rand = Math.random();
 	var range = high - low;
 
-	var gen = (rand * range) - low;
+	var gen = (rand * range) + low;
 
 	if (int) {
 

@@ -10,6 +10,9 @@ var context = canvas.getContext('2d');
 
 var objects = [];
 
+var gameover = false;
+var score = 0;
+
 var controls = {
 
 	mup: "KeyW",
@@ -25,6 +28,9 @@ var controls = {
 
 var no = objects.push(new Player());
 objects[no - 1].id = no - 1;
+no = objects.push(new director());
+objects[no - 1].id = no - 1;
+
 
 loadHandler();
 
