@@ -1,17 +1,16 @@
 // JavaScript source code
 
 //Creates a bullet
-function Bullet(x, y, radius, damage, speed, moveVector) {
+function Bullet(x, y, size, damage, speed, moveVector) {
 	this.type = "bullet";
 	this.Vec2 = new Vec2(x, y, this);
-	this.center = new Vec2(0, 0, this);
-	this.radius = radius;
-	this.colour = "red";
 	this.piercing = 1;
+	this.size = size;
 	this.damage = damage;
 	this.movespeed = speed;
 	this.moveVector = moveVector;
-	this.circleCol = new circleCol(this.radius, this);
+	this.circleCol = new circleCol(this.size/2, this);
+	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "red", this);
 	this.id = null;
 	
 	this.update = function () {
@@ -42,15 +41,14 @@ function Bullet(x, y, radius, damage, speed, moveVector) {
 function Zombie(x, y, size, health, damage) {
 	this.type = "Zombie";
 	this.Vec2 = new Vec2(x, y, this);
-	this.center = new Vec2(0, 0, this);
 	this.movespeed = 0.5;
+	this.size = size;
 	this.moveVector = new Vec2(0, 0, this);
-	this.radius = size / 2;
 	this.health = health;
 	this.damage = damage;
-	this.colour = "purple";
 	this.id = null;
-	this.circleCol = new circleCol(this.radius, this);
+	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "purple", this);
+	this.circleCol = new circleCol(this.size/2, this);
 	this.update = function () {
 
 		var vec = distBetween(this.Vec2.x, this.Vec2.y, objects[0].Vec2.x, objects[0].Vec2.y, true);
@@ -125,21 +123,20 @@ function Zombie(x, y, size, health, damage) {
 function Player() {
 	this.type = "player";
 	this.Vec2 = new Vec2(350, 250, this);
-	this.center = new Vec2(0, 0, this);
 	this.movespeed = 1;
+	this.size = 16;
 	this.moveVector = new Vec2(0, 0, this);
 	this.shootVector = new Vec2(0, 0, this);
 	this.health = 100;
 	this.maxhealth = 100;
 	this.energy = 100;
 	this.maxenergy = 100;
-	this.colour = "blue";
-	this.radius = 8;
 	this.shootint = 18;
 	this.shootcounter = 0;
 	this.iframes = 0;
 	this.id = null;
-	this.circleCol = new circleCol(this.radius, this);
+	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "blue", this);
+	this.circleCol = new circleCol(this.size/2, this);
 
 	this.damage = function (dmg) {
 
@@ -161,8 +158,7 @@ function Player() {
 
 		this.shootVector = this.shootVector.normalised();
 
-		var no = objects.push(new Bullet(this.Vec2.x + this.shootVector.x * this.radius + 2, this.Vec2.y + this.shootVector.y * this.radius + 2, 2, 1, 2, this.shootVector));
-
+		var no = objects.push(new Bullet(this.Vec2.x + this.shootVector.x * (this.size / 2 + 2), this.Vec2.y + this.shootVector.y * (this.size / 2 + 2), 4, 1, 2, this.shootVector));
 		objects[no - 1].id = no - 1;
 
 		this.shootcounter = 0;
@@ -229,23 +225,46 @@ function Vec2(x, y, parent) {
 //Creates a circle collider subObject.
 function circleCol(radius, parent) {
 
-	this.radius = radius,
-	this.parent = parent,
+	this.radius = radius;
+	this.parent = parent;
 	this.colCheck = function (objectId) {
-		var x1 = this.parent.Vec2.x;
-		var y1 = this.parent.Vec2.y;
-		var x2 = objects[objectId].Vec2.x;
-		var y2 = objects[objectId].Vec2.y;
-		if (distBetween(x1, y1, x2, y2, false) < radius + objects[objectId].circleCol.radius) {
-
-			return true;
-
+		if (objects[objectId].circleCol != undefined) {
+			var x1 = this.parent.Vec2.x;
+			var y1 = this.parent.Vec2.y;
+			var x2 = objects[objectId].Vec2.x;
+			var y2 = objects[objectId].Vec2.y;
+			if (distBetween(x1, y1, x2, y2, false) < radius + objects[objectId].circleCol.radius) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 
+			//TODO other colliders
 			return false;
 
 		}
-	};
+	}
+}
+
+
+//Makes a circle renderer
+function circleRenderer(radius, center, colour, parent) {
+
+	this.radius = radius;
+	this.center = center;
+	this.colour = colour;
+	this.parent = parent;
+	this.draw = function () {
+
+		context.fillstyle = this.colour;
+		context.beginPath();
+		context.arc(this.parent.Vec2.x + this.center.x, this.parent.Vec2.y + this.center.y, this.radius, 0, Math.PI * 2);
+		context.fill();
+		context.closePath();
+
+	} 
+
 }
 
 //Initalises general subfunctions for objects

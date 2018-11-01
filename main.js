@@ -3,6 +3,7 @@
 
 //DAY 1: Imported useful functions, made some new ones and set up drawing, movement and shooting for the player. Made circle collision detection. Need to figure out why everything is black, though.
 //DAY 2: Made multiple .js files. Cleaned up code, retooled the object system, created Zombies and their spawning system. Zombie AI now fully implemented.
+//DAY 3: Added a circleRenderer object making it so I can make invisible and other types of shapes in the future, modified the circleCol object to not require every object has one and added in a new canvas for HUD.
 console.log("Group 1 Reporting");
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext('2d');
@@ -68,7 +69,6 @@ function Update() {
 	for (var i in objects) {
 		objects[i].update();
 	}
-	console.log(objects);
 	//console.log(objects);
 	Render();
 	lateUpdate();
@@ -85,12 +85,11 @@ function Render() {
 
 		var obj = objects[i];
 
-		context.fillstyle = obj.colour;
+		if (obj.circleRenderer != undefined) {
+			//console.log("rendering " + i);
+			obj.circleRenderer.draw();
 
-		context.beginPath();
-		context.arc(obj.Vec2.x + obj.center.x, obj.Vec2.y + obj.center.y, obj.radius, 0, Math.PI * 2);
-		context.closePath();
-		context.fill();
+		}
 
 
 	}
