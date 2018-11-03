@@ -10,7 +10,7 @@ function Bullet(x, y, size, damage, speed, moveVector) {
 	this.movespeed = speed;
 	this.moveVector = moveVector;
 	this.circleCol = new circleCol(this.size/2, this);
-	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "red", this);
+	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "red", 0, this);
 	this.id = null;
 	
 	this.update = function () {
@@ -47,7 +47,7 @@ function Zombie(x, y, size, health, damage) {
 	this.health = health;
 	this.damage = damage;
 	this.id = null;
-	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "purple", this);
+	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "purple", 0, this);
 	this.circleCol = new circleCol(this.size/2, this);
 	this.update = function () {
 		if (!gameover) {
@@ -119,6 +119,12 @@ function Zombie(x, y, size, health, damage) {
 	};
 	subFuncs(this);
 }
+
+//Makes a tank
+function Tank(x,y) {
+	this.type = "tank";
+	this.Vec2 = new Vec2(x, y, this);
+}
 	
 
 //Makes the player
@@ -137,7 +143,7 @@ function Player() {
 	this.shootcounter = 0;
 	this.iframes = 0;
 	this.id = null;
-	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "blue", this);
+	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "blue", 0, this);
 	this.circleCol = new circleCol(this.size/2, this);
 
 	this.damage = function (dmg) {
@@ -198,6 +204,7 @@ function director() {
 
 	this.type = "director";
 	this.gameticks = 0;
+	this.zombieSpawnTimer = 0;
 	this.loZombiespawnInterval = 1800;
 	this.hiZombieSpawnInterval = 120;
 	this.zombieSpawnInterval = 120;
@@ -212,11 +219,25 @@ function director() {
 	this.zombiespawnDev = 5;
 	this.update = function () {
 
-		if (this.gameticks % this.zombieSpawnInterval == 0) {
+		if (this.zombies < this.desiredZombies) {
+
+			this.zombieSpawnInterval = this.hiZombieSpawnInterval;
+
+		} else {
+
+			var coeff = (this.zombies - this.desiredZombies) / (this.softZombiecap - this.desiredZombies);
+			var int = (this.loZombiespawnInterval - this.hiZombieSpawnInterval) * coeff;
+
+			this.zombieSpawnInterval = this.hiZombieSpawnInterval + int;
+
+		}
+
+		if (this.zombieSpawnInterval <= this.zombieSpawnTimer) {
 			var number = Randrange(this.zombieSpawnAve - this.zombiespawnDev, this.zombieSpawnAve + this.zombiespawnDev, true);
 			console.log("spawn " + number + " zombies");
-			spawnZombieGroup(Randrange(0, canvas.width, true), Randrange(0, canvas.height, true), 30, 8, 1, 5, number);
-			this.zombies += number; 
+			spawnZombieGroup(Randrange(0, canvas[0].width, true), Randrange(0, canvas[0].height, true), 30, 8, this.zombieSpeed, this.zombieDamage, number);
+			this.zombies += number;
+			this.zombieSpawnTimer = 0;
 
 		}
 
@@ -237,6 +258,7 @@ function director() {
 		}
 
 		this.gameticks++;
+		this.zombieSpawnTimer++;
 	};
 	subFuncs(this);
 
@@ -304,21 +326,59 @@ function circleCol(radius, parent) {
 
 
 //Makes a circle renderer
-function circleRenderer(radius, center, colour, parent) {
+function circleRenderer(radius, center, colour, canvasno, parent) {
 
 	this.radius = radius;
 	this.center = center;
 	this.colour = colour;
 	this.parent = parent;
+	this.canvasno = canvasno;
 	this.draw = function () {
 
-		context.fillStyle = this.colour;
-		context.beginPath();
-		context.arc(this.parent.Vec2.x + this.center.x, this.parent.Vec2.y + this.center.y, this.radius, 0, Math.PI * 2);
-		context.fill();
-		context.closePath();
+		context[this.canvasno].fillStyle = this.colour;
+		context[this.canvasno].beginPath();
+		context[this.canvasno].arc(this.parent.Vec2.x + this.center.x, this.parent.Vec2.y + this.center.y, this.radius, 0, Math.PI * 2);
+		context[this.canvasno].fill();
+		context[this.canvasno].closePath();
 
 	} 
+
+}
+
+function lineRenderer(start, end, colour, canvasno, parent) {
+
+	this.start = start;
+	this.end = end;
+	this.colour = colour;
+	this.parent = parent;
+	this.canvasno = canvasno;
+	this.draw = function () {
+
+		context[this.canvasno].fillStyle = this.colour;
+		context[this.canvasno].beginPath();
+		context[this.canvasno].moveTo(this.start.x, this.start.y);
+		context[this.canvasno].lineTo(this.end.x, this.end.y);
+		context[this.canvasno].stroke();
+		context[this.canvasno].closePath();
+	}
+}
+
+function rectRenderer(start, dimensions, colour, canvasno, parent) {
+
+	this.start = start;
+	this.dimensions = dimensions;
+	this.colour = colour;
+	this.parent = parent;
+	this.canvasno = canvasno;
+	this.draw = function () {
+
+		context[this.canvasno].fillStyle = this.colour;
+		context[this.canvasno].beginPath();
+		context[this.canvasno].rect(start.x, start.y, dimensions.x, dimensions.y);
+		context[this.canvasno].fill();
+		context[this.canvasno].closePath();
+
+	}
 
 }
 

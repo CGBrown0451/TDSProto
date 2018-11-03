@@ -5,14 +5,25 @@
 	<meta charset="utf-8" />
 	<title>Top Down Shooter Prototype</title>
 	<style type="text/css">
-		#canvas {
-			border: 2px solid #333;
+		canvas {
+			margin: 0px;
+			display: block;
+			float:left;
+		}
+		.container {
+			margin: 0px;
+			overflow: auto;
 		}
 	</style>
 </head>
 <body>
-	<canvas id="leftHUD" width="100" height="600"></canvas>
-	<canvas id="canvas" width="700" height="500"></canvas>
+	<div class="container">
+		<canvas id="leftHUD" width="100" height="600"></canvas>
+		<canvas id="canvas" width="700" height="500"></canvas>
+		<canvas id="botHUD" width="700" height="100"></canvas>
+	</div>
+	
+	
 	<script src="genFunc.js"></script>
 	<script src="objects.js"></script>
 	<script src="main.js"></script>

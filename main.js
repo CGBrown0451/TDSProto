@@ -3,10 +3,21 @@
 
 //DAY 1: Imported useful functions, made some new ones and set up drawing, movement and shooting for the player. Made circle collision detection. Need to figure out why everything is black, though.
 //DAY 2: Made multiple .js files. Cleaned up code, retooled the object system, created Zombies and their spawning system. Zombie AI now fully implemented.
-//DAY 3: Added a circleRenderer object making it so I can make invisible and other types of shapes in the future, modified the circleCol object to not require every object has one and added in a new canvas for HUD.
+//DAY 3: Added a circleRenderer object making it so I can make invisible and other types of shapes in the future, modified the circleCol object to not require every object has one and added in a new canvas for HUD. Made a start on the AI Director which moderates enemy population. Spawns zombies in large groups. Fixed the 100% black problem
+//DAY 4: Finished AI Director for Zombies. Added a line and rectangle renderer. Finished HTML formatting for canvasses. Made all renderers able to render on any of the canvasses.
 console.log("Group 1 Reporting");
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext('2d');
+
+var canvas = [];
+var context = [];
+
+canvas.push(document.getElementById("canvas"));
+context.push(canvas[0].getContext('2d'));
+
+canvas.push(document.getElementById("leftHUD"));
+context.push(canvas[1].getContext('2d'));
+
+canvas.push(document.getElementById("botHUD"));
+context.push(canvas[2].getContext('2d'));
 
 var objects = [];
 
@@ -85,7 +96,7 @@ function Update() {
 //Renders sprites and primitive shapes
 function Render() {
 
-	context.clearRect(0, 0, canvas.width, canvas.height);
+	context[0].clearRect(0, 0, canvas[0].width, canvas[0].height);
 
 	for (var i in objects) {
 
