@@ -111,3 +111,16 @@ function getKeyDown(key) {
 	return false;
 
 }
+
+//Zero Buffering
+function ZeroBuffer(num, length) {
+	if (num == null) { num = 0 };
+	var no = num.toString();
+	console.log(no);
+	var zerostoadd = length - no.length;
+	console.log(zerostoadd);
+	for (i = 0; i < zerostoadd; i++) {
+		no = "0" + no;
+	}
+	return no;
+}

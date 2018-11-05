@@ -10,12 +10,13 @@ function Bullet(x, y, size, damage, speed, moveVector) {
 	this.movespeed = speed;
 	this.moveVector = moveVector;
 	this.circleCol = new circleCol(this.size/2, this);
-	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "red", 0, this);
+	this.circleRenderer = new circleRenderer(this.size / 2, new Vec2(0, 0, this), "red", 0, this);
+	this.renderers = [this.circleRenderer];
 	this.id = null;
 	
 	this.update = function () {
 		this.moveVector.parent = this;
-		this.move();
+		this.move(this.moveVector, this.movespeed);
 
 		if (this.Vec2.x < 0 || this.Vec2.x > canvas.width) {
 			this.destroy();
@@ -47,7 +48,8 @@ function Zombie(x, y, size, health, damage) {
 	this.health = health;
 	this.damage = damage;
 	this.id = null;
-	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "purple", 0, this);
+	this.circleRenderer = new circleRenderer(this.size / 2, new Vec2(0, 0, this), "purple", 0, this);
+	this.renderers = [this.circleRenderer];
 	this.circleCol = new circleCol(this.size/2, this);
 	this.update = function () {
 		if (!gameover) {
@@ -63,7 +65,7 @@ function Zombie(x, y, size, health, damage) {
 			this.moveVector.x = -vec.x;
 			this.moveVector.y = -vec.y;
 
-			this.move();
+			this.move(this.moveVector, this.movespeed + Randrange(-0.4,0.5,false));
 		}
 		
 
@@ -91,7 +93,7 @@ function Zombie(x, y, size, health, damage) {
 
 							this.moveVector.x = -this.moveVector.x;
 							this.moveVector.y = -this.moveVector.y;
-							this.move();
+							this.move(this.moveVector,this.movespeed);
 
 						}
 
@@ -102,7 +104,7 @@ function Zombie(x, y, size, health, damage) {
 						var movedir = distBetween(this.Vec2.x, this.Vec2.y, objects[i].Vec2.x, objects[i].Vec2.y, true);
 						this.moveVector.x = movedir[0];
 						this.moveVector.y = movedir[1];
-						this.move();
+						this.move(this.moveVector, this.movespeed);
 
 					}
 
@@ -143,7 +145,8 @@ function Player() {
 	this.shootcounter = 0;
 	this.iframes = 0;
 	this.id = null;
-	this.circleRenderer = new circleRenderer(this.size/2, new Vec2(0, 0, this), "blue", 0, this);
+	this.circleRenderer = new circleRenderer(this.size / 2, new Vec2(0, 0, this), "blue", 0, this);
+	this.renderers = [this.circleRenderer];
 	this.circleCol = new circleCol(this.size/2, this);
 
 	this.damage = function (dmg) {
@@ -179,7 +182,7 @@ function Player() {
 		this.shootVector.x = slr;
 		this.shootVector.y = sud;
 
-		this.move();
+		this.move(this.moveVector, this.movespeed);
 
 		this.shootcounter++;
 		this.iframes--;
@@ -203,6 +206,7 @@ function Player() {
 function director() {
 
 	this.type = "director";
+	this.renderers = [];
 	this.gameticks = 0;
 	this.zombieSpawnTimer = 0;
 	this.loZombiespawnInterval = 1800;
@@ -235,8 +239,10 @@ function director() {
 		if (this.zombieSpawnInterval <= this.zombieSpawnTimer) {
 			var number = Randrange(this.zombieSpawnAve - this.zombiespawnDev, this.zombieSpawnAve + this.zombiespawnDev, true);
 			console.log("spawn " + number + " zombies");
-			spawnZombieGroup(Randrange(0, canvas[0].width, true), Randrange(0, canvas[0].height, true), 30, 8, this.zombieSpeed, this.zombieDamage, number);
-			this.zombies += number;
+			if (this.zombies < this.softZombiecap) {
+				spawnZombieGroup(Randrange(0, canvas[0].width, true), Randrange(0, canvas[0].height, true), 30, 8, this.zombieSpeed, this.zombieDamage, number);
+				this.zombies += number;
+			}
 			this.zombieSpawnTimer = 0;
 
 		}
@@ -261,6 +267,23 @@ function director() {
 		this.zombieSpawnTimer++;
 	};
 	subFuncs(this);
+
+}
+
+function HUD() {
+
+	this.healthback = new rectRenderer(new Vec2(10, 50, this), new Vec2(500, 40, this), "black", 2, this);
+	this.healthfront = new rectRenderer(new Vec2(10, 50, this), new Vec2(500, 40, this), "red", 2, this);
+	this.healthtext = new textRenderer("Health", new Vec2(10, 34, this), 32, "Trebuchet MS", "black", "left", 2, this);
+	this.scoretext = new textRenderer("Score: ", new Vec2(500, 34, this), 32, "Trebuchet MS", "black", "right", 2, this);
+	this.renderers = [this.healthback, this.healthfront, this.healthtext, this.scoretext];
+
+	this.update = function () {
+
+		this.healthfront.dimensions.x = (objects[0].health / objects[0].maxhealth) * 500;
+		this.scoretext.text = "Score: " + ZeroBuffer(score, 10);
+
+	};
 
 }
 
@@ -360,7 +383,7 @@ function lineRenderer(start, end, colour, canvasno, parent) {
 		context[this.canvasno].lineTo(this.end.x, this.end.y);
 		context[this.canvasno].stroke();
 		context[this.canvasno].closePath();
-	}
+	};
 }
 
 function rectRenderer(start, dimensions, colour, canvasno, parent) {
@@ -378,19 +401,45 @@ function rectRenderer(start, dimensions, colour, canvasno, parent) {
 		context[this.canvasno].fill();
 		context[this.canvasno].closePath();
 
-	}
+	};
+
+}
+
+
+//render the hecking text
+function textRenderer(text, start, size, font, colour, align, canvasno, parent) {
+
+	this.text = text;
+	this.start = start;
+	this.size = size;
+	this.font = font;
+	this.colour = colour;
+	this.canvasno = canvasno;
+	this.parent = parent;
+	this.align = align;
+	this.draw = function () {
+
+		context[this.canvasno].fillStyle = this.colour;
+		context[this.canvasno].textAlign = align;
+		context[this.canvasno].beginPath();
+		context[this.canvasno].font = this.size + "px " + this.font;
+		context[this.canvasno].fillText(this.text, this.start.x, this.start.y);
+		context[this.canvasno].closePath();
+
+
+	};
 
 }
 
 //Initalises general subfunctions for objects
 function subFuncs(obj) {
 
-	obj.move = function () {
+	obj.move = function (moveVector,speed) {
 
-		this.moveVector = this.moveVector.normalised();
+		moveVector = moveVector.normalised();
 
-		this.Vec2.x += this.moveVector.x * this.movespeed;
-		this.Vec2.y += this.moveVector.y * this.movespeed;
+		this.Vec2.x += moveVector.x * speed;
+		this.Vec2.y += moveVector.y * speed;
 
 	};
 

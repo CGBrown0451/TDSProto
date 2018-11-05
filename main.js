@@ -41,6 +41,9 @@ var no = objects.push(new Player());
 objects[no - 1].id = no - 1;
 no = objects.push(new director());
 objects[no - 1].id = no - 1;
+no = objects.push(new HUD());
+objects[no - 1].id = no - 1;
+
 
 
 loadHandler();
@@ -97,17 +100,18 @@ function Update() {
 function Render() {
 
 	context[0].clearRect(0, 0, canvas[0].width, canvas[0].height);
-
+	context[1].clearRect(0, 0, canvas[1].width, canvas[1].height);
+	context[2].clearRect(0, 0, canvas[2].width, canvas[2].height);
 	for (var i in objects) {
-
 		var obj = objects[i];
+		if (obj.renderers.length > 0) {
+			for (j in obj.renderers) {
 
-		if (obj.circleRenderer != undefined) {
-			//console.log("rendering " + i);
-			obj.circleRenderer.draw();
+				obj.renderers[j].draw();
+
+			}
 
 		}
-
 
 	}
 
