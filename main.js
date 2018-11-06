@@ -21,6 +21,7 @@ context.push(canvas[2].getContext('2d'));
 
 var objects = [];
 
+var pause = false;
 var gameover = false;
 var score = 0;
 
@@ -33,7 +34,8 @@ var controls = {
 	sup: "ArrowUp",
 	sdown: "ArrowDown",
 	sleft: "ArrowLeft",
-	sright: "ArrowRight"
+	sright: "ArrowRight",
+	pause: "Escape"
 
 };
 
@@ -53,7 +55,7 @@ function loadHandler() {
 	window.addEventListener("keydown", keyDownHandler, false);
 	window.addEventListener("keyup", keyUpHandler, false);
 
-	spawnZombieGroup(100, 100, 30, 8, 1, 5, 5);
+	//spawnZombieGroup(100, 100, 30, 8, 1, 5, 5);
 
 	Update();
 
@@ -86,8 +88,20 @@ function inputHandler() {
 function Update() {
 
 	inputHandler();
-	for (var i in objects) {
-		objects[i].update();
+
+	if (getKeyDown(controls.pause)) {
+		pause = !pause;
+	}
+
+	if (pause) {
+
+		//Do pause stuff
+
+	} else {
+
+		for (var i in objects) {
+			objects[i].update();
+		}
 	}
 	//console.log(objects);
 	Render();
