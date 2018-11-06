@@ -24,6 +24,7 @@ var objects = [];
 var pause = false;
 var gameover = false;
 var score = 0;
+var brouzouf = 0;
 
 var controls = {
 
@@ -44,6 +45,8 @@ objects[no - 1].id = no - 1;
 no = objects.push(new director());
 objects[no - 1].id = no - 1;
 no = objects.push(new HUD());
+objects[no - 1].id = no - 1;
+no = objects.push(new Upgrades());
 objects[no - 1].id = no - 1;
 
 
@@ -104,6 +107,7 @@ function Update() {
 		}
 	}
 	//console.log(objects);
+	HTMLUpdate();
 	Render();
 	lateUpdate();
 	

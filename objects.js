@@ -113,6 +113,7 @@ function Zombie(x, y, size, health, damage) {
 		}
 		if (this.health <= 0) {
 			score += 10;
+			brouzouf += 10;
 			objects[1].zombies--;
 			this.destroy();
 
@@ -284,6 +285,68 @@ function HUD() {
 		this.scoretext.text = "Score: " + ZeroBuffer(score, 10);
 
 	};
+
+}
+
+function Upgrades() {
+
+	this.split = new Upgrade(3, false, [5000, 10000, 50000], 0);
+	this.shootspeed = new Upgrade(25, true, 500, 0.5);
+	this.damage = new Upgrade(1000, true, 100, 1);
+	this.spray = new Upgrade(1, false, [10000], 0);
+	this.friends = new Upgrade(2, false, [10000, 20000], 0);
+	this.renderers = [];
+	this.upgrades = [this.split, this.shootspeed, this.damage, this.spray, this.friends];
+
+	this.upgrade = function (no) {
+
+		var upg = this.upgrades[no];
+
+		if (brouzouf >= upg.cost) {
+			if (upg.level < upg.cap) {
+
+				brouzouf -= upg.cost;
+				upg.level++;
+				if (upg.level < upg.cap) {
+					if (upg.algorithm) {
+						upg.cost += Math.floor(upg.cost * upg.coeff);
+					} else {
+						upg.cost = upg.costs[upg.level];
+					}
+				} else {
+
+					upg.capped = true;
+
+				}
+			}
+		}
+	};
+
+	this.update = function () {
+
+	};
+
+
+}
+
+function Upgrade(cap,alg,costs,coeff) {
+
+	this.level = 0;
+	this.cap = cap;
+	this.algorithm = alg;
+	this.capped = false;
+
+	if (this.algorithm) {
+
+		this.cost = costs;
+		this.coeff = coeff;
+
+	} else {
+
+		this.cost = costs[0];
+		this.costs = costs;
+
+	}
 
 }
 

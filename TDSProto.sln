@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E69D76F3-05F1-464B-B341-097041B38799}"
 	ProjectSection(SolutionItems) = preProject
 		genFunc.js = genFunc.js
+		HTMLfunctions.js = HTMLfunctions.js
 		index.html = index.html
 		main.js = main.js
 		objects.js = objects.js
