@@ -11,11 +11,11 @@ document.getElementById("dmg").addEventListener("click", function(){
 	buydmg = true;
 });
 var dm = document.getElementById("dm");
-document.getElementById("sup").addEventListener("sup", function(){
+document.getElementById("sup").addEventListener("click", function(){
 	buysup = true;
 });
 var su = document.getElementById("su");
-document.getElementById("fri").addEventListener("fri", function(){
+document.getElementById("fri").addEventListener("click", function(){
 	buyfri = true;
 });
 var fr = document.getElementById("fr");
@@ -42,9 +42,11 @@ function HTMLUpdate(){
 	}
 	if (buysup) {
 		objects[3].upgrade(3);
+		
 	}
 	if (buyfri) {
 		objects[3].upgrade(4);
+		
 	}
 
 	bzc.innerText = "Brouzouf: " + brouzouf;
@@ -64,6 +66,18 @@ function HTMLUpdate(){
 		dm.innerText = " " + objects[3].damage.cost + "Bz " + objects[3].damage.level + "/" + objects[3].damage.cap + " Damage";
 	} else {
 		dm.innerText = " " + objects[3].damage.level + "/" + objects[3].damage.cap + " Damage";
+	}
+
+	if (!objects[3].spray.capped) {
+		su.innerText = " " + objects[3].spray.cost + "Bz " + objects[3].spray.level + "/" + objects[3].spray.cap + " Spray Upgrade";
+	} else {
+		su.innerText = " " + objects[3].spray.level + "/" + objects[3].spray.cap + " Spray Upgrade";
+	}
+
+	if (!objects[3].friends.capped) {
+		fr.innerText = " " + objects[3].friends.cost + "Bz " + objects[3].friends.level + "/" + objects[3].friends.cap + " Friends";
+	} else {
+		fr.innerText = " " + objects[3].friends.level + "/" + objects[3].friends.cap + " Friends";
 	}
 
 

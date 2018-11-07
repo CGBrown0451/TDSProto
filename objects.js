@@ -13,7 +13,6 @@ function Bullet(x, y, size, damage, speed, moveVector) {
 	this.circleRenderer = new circleRenderer(this.size / 2, new Vec2(0, 0, this), "red", 0, this);
 	this.renderers = [this.circleRenderer];
 	this.id = null;
-	
 	this.update = function () {
 		this.moveVector.parent = this;
 		this.move(this.moveVector, this.movespeed);
@@ -182,6 +181,8 @@ function Player() {
 
 		this.shootVector.x = slr;
 		this.shootVector.y = sud;
+
+		//console.log(this.moveVector.x + "," + this.moveVector.y);
 
 		this.move(this.moveVector, this.movespeed);
 
@@ -383,6 +384,9 @@ function Vec2(x, y, parent) {
 			return new Vec2(0, 0, this.parent);
 		}
 	};
+
+
+
 }
 
 //Creates a circle collider subObject.
